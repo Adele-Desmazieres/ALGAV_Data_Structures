@@ -1,6 +1,5 @@
 import ctypes
 
-
 # unsigned int with a list of 4 uint32, from weaker to stronger bits
 class uint128 :
 	
@@ -11,16 +10,7 @@ class uint128 :
 		val3 = (intval >> 64) & mask
 		val4 = (intval >> 96) & mask
 		
-		# print(val1)
-		# print(val2)
-		# print(val3)
-		# print(val4)
-		
 		self.val = [ctypes.c_uint32(val1), ctypes.c_uint32(val2), ctypes.c_uint32(val3), ctypes.c_uint32(val4)]
-		#self.val1 = 
-		#self.val2 = 
-		#self.val3 = 
-		#self.val4 = 
 	
 	def printuint(self) :
 		print([x.value for x in self.val])
@@ -41,29 +31,27 @@ class uint128 :
 	def eg_dynamic(self, x2) :
 		return uint128.eg(self, x2)
 
+def test() :
+	x1 = uint128(2**46)
+	x2 = uint128(2**46)
+	print(uint128.inf(x1, x2))
+	print(uint128.inf(x2, x1))
 
+	print(x1.inf_dynamic(x2))
+	print(x2.inf_dynamic(x1))
 
+	print(x1.inf(x2))
+	print(x2.inf(x1))
 
+	print(uint128.eg(x1, x2))
+	print(uint128.eg(x2, x1))
 
-x1 = uint128(2**46)
-x2 = uint128(2**46)
-# print(uint128.inf(x1, x2))
-# print(uint128.inf(x2, x1))
+	print(x1.eg_dynamic(x2))
+	print(x2.eg_dynamic(x1))
 
-# print(x1.inf_dynamic(x2))
-# print(x2.inf_dynamic(x1))
-
-# print(x1.inf(x2))
-# print(x2.inf(x1))
-
-print(uint128.eg(x1, x2))
-print(uint128.eg(x2, x1))
-
-print(x1.eg_dynamic(x2))
-print(x2.eg_dynamic(x1))
-
-print(x1.eg(x2))
-print(x2.eg(x1))
-y = [1,2,3]
-x1.printuint()
-print(x1)
+	print(x1.eg(x2))
+	print(x2.eg(x1))
+	y = [1,2,3]
+	x1.printuint()
+	print(x1)
+test()
