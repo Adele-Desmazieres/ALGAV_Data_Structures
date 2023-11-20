@@ -54,4 +54,8 @@ def test() :
 	y = [1,2,3]
 	x1.printuint()
 	print(x1)
-test()
+	
+
+
+if __name__ == "__main__" :
+	test()
