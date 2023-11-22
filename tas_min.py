@@ -39,24 +39,21 @@ class node :
 				self.gauche = n
 			return self
 	
-	def AjoutFin(self, val, chemin) :
-		print(self.toStr())
+	def AjoutNode(self, val, chemin) :
 		if chemin == [0] :
 			n = node(val)
-			#self.gauche = n
 			return self.equilibreUnEtage(n, 0)
 			
 		elif chemin == [1] :
 			n = node(val)
-			#self.droite = n
 			return self.equilibreUnEtage(n, 1)
 		
 		else : 
 			if chemin[0] == 0 :
-				n = self.gauche.AjoutFin(val, chemin[1:])
+				n = self.gauche.AjoutNode(val, chemin[1:])
 				return self.equilibreUnEtage(n, 0)
 			else :
-				n = self.droite.AjoutFin(val, chemin[1:])
+				n = self.droite.AjoutNode(val, chemin[1:])
 				return self.equilibreUnEtage(n, 1)
 	
 	def toStr(self) :
@@ -77,12 +74,12 @@ class tas_min_tree(tas_min_interface) :
 		t.root = node(val)
 		return t
 	
-	def AjoutFin(self, val) :
+	def Ajout(self, val) :
 		if self.root : 
 			# le chemin est la liste des bits de [taille arbre + 1] en binaire, sauf le bit le plus lourd
 			chemin = [int(bit) for bit in bin(self.size + 1)[3:]] # [3:] car on supprime 0b et le first bit
 			#print(chemin)
-			self.root = self.root.AjoutFin(val, chemin)
+			self.root = self.root.AjoutNode(val, chemin)
 		else :
 			self.root = node(val)
 		self.size += 1
@@ -92,6 +89,10 @@ class tas_min_tree(tas_min_interface) :
 			return "Empty tree\n"
 		else :
 			return self.root.toStr()
+	
+	def AjoutsIteratifs(self, keys) :
+		for k in keys :
+			self.Ajout(k)
 
 
 
@@ -108,7 +109,7 @@ def test() :
 	
 	t1 = tas_min_tree()
 	for i in range(1, 16, 1) :
-		t1.AjoutFin(i)
+		t1.Ajout(i)
 	print()
 	print(t1.toStr())
 
