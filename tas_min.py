@@ -16,6 +16,12 @@ class node :
 		self.gauche = None # node
 		self.droite = None # node
 
+	def toStr(self) :
+		elt_str = str(self.val)
+		g_str = self.gauche.toStr() if self.gauche else "#"
+		d_str = self.droite.toStr() if self.droite else "#"
+		return "(" + g_str + ", " + elt_str + ", " + d_str + ")"
+
 	def equilibreUnEtage(self, n, isFromRight) :
 		if n.val < self.val :
 			nd, ng = n.droite, n.gauche
@@ -97,11 +103,60 @@ class node :
 				n = self.droite.AjoutNode(val, chemin[1:])
 				return self.equilibreUnEtage(n, 1)
 
-	def toStr(self) :
-		elt_str = str(self.val)
-		g_str = self.gauche.toStr() if self.gauche else "#"
-		d_str = self.droite.toStr() if self.droite else "#"
-		return "(" + g_str + ", " + elt_str + ", " + d_str + ")"
+	def initUnbalancedNode(keys, lenkeys) :
+		if keys == [] :
+			return None
+
+		curr_node = node(keys[0])
+		keys = keys[1:]
+		lenkeys -= 1
+		mid = (lenkeys + 1) // 2
+		curr_node.gauche = node.initUnbalancedNode(keys[0:mid], mid)
+		curr_node.droite = node.initUnbalancedNode(keys[mid:], lenkeys-mid)
+		return curr_node
+
+	# parcours suffixe, rééquilibre tous les noeuds
+	def equilibreTout(self) :
+		if not self.gauche :
+			return self
+
+		else :
+			self.gauche = self.gauche.equilibreTout()
+			if self.droite :
+				self.droite = self.droite.equilibreTout()
+			rootnode = self.equilibreDescente()
+
+			return rootnode
+
+	def equilibreDescente(self) :
+		d = self.droite
+		g = self.gauche
+
+		# pas d'échange de valeur
+		if (not d and not g) or \
+				(not d and g.val > self.val) or \
+				(d and d.val > self.val and g.val > self.val) :
+			return self
+
+		# échange à droite
+		elif (d and d.val < self.val and d.val < g.val) :
+			d2, g2 = d.droite, d.gauche
+			d.droite = self
+			d.gauche = g
+			self.droite = d2
+			self.gauche = g2
+			d.droite = d.droite.equilibreDescente()
+			return d
+
+		# échange à gauche
+		else :
+			d2, g2 = g.droite, g.gauche
+			g.droite = d
+			g.gauche = self
+			self.droite = d2
+			self.gauche = g2
+			g.gauche = g.gauche.equilibreDescente()
+			return g
 
 
 class tas_min_tree(tas_min_interface) :
@@ -110,7 +165,7 @@ class tas_min_tree(tas_min_interface) :
 		self.root = None
 		self.size = 0
 
-	def init_val(val) :
+	def initVal(val) :
 		t = tas_min_tree()
 		t.root = node(val)
 		return t
@@ -162,9 +217,33 @@ class tas_min_tree(tas_min_interface) :
 		for k in keys :
 			self.Ajout(k)
 
+	def Construction(keys) :
+		if keys == [] :
+			return tas_min_tree()
+		else :
+			#root = node(keys[1])
+			t1 = tas_min_tree()
+			t1.root = node.initUnbalancedNode(keys, len(keys))
+			t1.root = t1.root.equilibreTout()
+			return t1
 
 
 def test() :
+
+	t1 = tas_min_tree()
+	for i in range(15, 0, -1) :
+		t1.Ajout(i)
+	print()
+	print(t1.toStr())
+
+	t2 = tas_min_tree()
+	keys = [x for x in range(15, 0, -1)]
+	t2.AjoutsIteratifs(keys)
+	print(t2.toStr())
+
+	keys1 = [5, 1, 2, 4, 6, 3]
+	t3 = tas_min_tree.Construction(keys1)
+	print(t3.toStr())
 
 	t1 = tas_min_tree()
 	for i in range(1, 9, 1) :
