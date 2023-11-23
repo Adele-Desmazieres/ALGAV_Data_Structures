@@ -7,6 +7,15 @@ class tas_min_interface :
 	
 	def Ajout(self) :
 		pass
+	
+	def AjoutsIteratifs(self) :
+		pass
+	
+	def Construction() :
+		pass
+	
+	def Union(t1, t2) :
+		pass
 
 
 class node :
@@ -158,6 +167,14 @@ class tas_min_tree(tas_min_interface) :
 			t1.root = node.initUnbalancedNode(keys, len(keys))
 			t1.root = t1.root.equilibreTout()
 			return t1
+
+
+class tas_min_array(tas_min_interface) :
+	
+	def __init__() :
+		content = []
+	
+	
 
 
 def test() :
