@@ -90,7 +90,6 @@ class node :
 	def equilibreDescente(self) :
 		d = self.droite
 		g = self.gauche
-		root = self
 		
 		# pas d'échange de valeur
 		if (not d and not g) or \
@@ -113,7 +112,6 @@ class node :
 			d2, g2 = g.droite, g.gauche
 			g.droite = d
 			g.gauche = self
-			root = g
 			self.droite = d2
 			self.gauche = g2
 			g.gauche = g.gauche.equilibreDescente()
