@@ -243,25 +243,28 @@ class tas_min_array(tas_min_interface) :
     
     def getIndexFilsDroit(self, i_curr) :
         i_droit = 2 * i_curr + 2
-        return i_droit if i_droit < self.size else None
+        return i_droit if i_droit < self.size else -1
     
     def getIndexFilsGauche(self, i_curr) :
         i_gauche = 2 * i_curr + 1
-        return i_gauche if i_gauche < self.size else None
+        return i_gauche if i_gauche < self.size else -1
+    
+    def getIndexPere(self, i_curr) :
+        return (i_curr - 1) // 2 if i_curr > 0 else -1
     
     def equilibreDescente(self, i_curr) :
         i_gauche = self.getIndexFilsGauche(i_curr)
         i_droit = self.getIndexFilsDroit(i_curr)
         
-        i_swap = None
+        i_swap = -1
         
-        if i_gauche and self.t[i_gauche] < self.t[i_curr] :
+        if i_gauche > 0 and self.t[i_gauche] < self.t[i_curr] :
             i_swap = i_gauche
         
-        if i_droit and self.t[i_droit] < self.t[i_gauche] :
+        if i_droit > 0 and self.t[i_droit] < self.t[i_gauche] :
             i_swap = i_droit
         
-        if i_swap :
+        if i_swap > 0 :
             self.t[i_curr], self.t[i_swap] = self.t[i_swap], self.t[i_curr]
             self.equilibreDescente(i_swap)
     
@@ -271,9 +274,18 @@ class tas_min_array(tas_min_interface) :
         self.size -= 1
         self.equilibreDescente(0)
     
+    def equilibreMontee(self, i_curr) :
+        i_pere = self.getIndexPere(i_curr)
+        #print(i_curr, i_pere, self.t)
+        
+        if i_pere > -1 and self.t[i_pere] > self.t[i_curr] :
+            self.t[i_curr], self.t[i_pere] = self.t[i_pere], self.t[i_curr]
+            self.equilibreMontee(i_pere)
+    
     def Ajout(self, key) :
         self.t.append(key)
         self.size += 1
+        self.equilibreMontee(self.size-1)
     
     def AjoutsIteratifs(self, keys) :
         for key in keys :
@@ -342,6 +354,19 @@ def test_array() :
     print(t2.t)
     t2.SupprMin()
     print(t2.t)
+    print()
+    
+    
+    #keys = [x for x in range(2, 8)]
+    keys = [5, 1, 2, 4, 6, 3]
+    
+    t3arbre = tas_min_tree()
+    t3arbre.AjoutsIteratifs(keys)
+    print(t3arbre.toStr())
+    
+    t3 = tas_min_array()
+    t3.AjoutsIteratifs(keys)
+    print(t3.t)
     
 
 
