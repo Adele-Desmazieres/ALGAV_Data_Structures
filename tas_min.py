@@ -179,16 +179,6 @@ class tas_min_tree(tas_min_interface) :
         t.root = node(val)
         return t
 
-    def Ajout(self, val) :
-        if self.root :
-            # le chemin est la liste des bits de [taille arbre + 1] en binaire, sauf le bit le plus lourd
-            chemin = [int(bit) for bit in bin(self.size + 1)[3:]] # [3:] car on supprime 0b et le first bit
-            #print(chemin)
-            self.root = self.root.AjoutNode(val, chemin)
-        else :
-            self.root = node(val)
-        self.size += 1
-
     def toStr(self) :
         if not self.root :
             return "Empty tree\n"
@@ -220,7 +210,15 @@ class tas_min_tree(tas_min_interface) :
             self.root = self.root.equilibreDescente()
             self.size -= 1
 
-
+    def Ajout(self, val) :
+        if self.root :
+            # le chemin est la liste des bits de [taille arbre + 1] en binaire, sauf le bit le plus lourd
+            chemin = [int(bit) for bit in bin(self.size + 1)[3:]] # [3:] car on supprime 0b et le first bit
+            #print(chemin)
+            self.root = self.root.AjoutNode(val, chemin)
+        else :
+            self.root = node(val)
+        self.size += 1
 
     def AjoutsIteratifs(self, keys) :
         for k in keys :
@@ -239,10 +237,47 @@ class tas_min_tree(tas_min_interface) :
 
 class tas_min_array(tas_min_interface) :
     
-    def __init__() :
-        content = []
+    def __init__(self) :
+        self.t = [] # TODO check python list are okay, or use array module
+        self.size = 0
     
+    def getIndexFilsDroit(self, i_curr) :
+        i_droit = 2 * i_curr + 2
+        return i_droit if i_droit < self.size else None
     
+    def getIndexFilsGauche(self, i_curr) :
+        i_gauche = 2 * i_curr + 1
+        return i_gauche if i_gauche < self.size else None
+    
+    def equilibreDescente(self, i_curr) :
+        i_gauche = self.getIndexFilsGauche(i_curr)
+        i_droit = self.getIndexFilsDroit(i_curr)
+        
+        i_swap = None
+        
+        if i_gauche and self.t[i_gauche] < self.t[i_curr] :
+            i_swap = i_gauche
+        
+        if i_droit and self.t[i_droit] < self.t[i_gauche] :
+            i_swap = i_droit
+        
+        if i_swap :
+            self.t[i_curr], self.t[i_swap] = self.t[i_swap], self.t[i_curr]
+            self.equilibreDescente(i_swap)
+    
+    def SupprMin(self) :
+        last = self.t[self.size-1]
+        self.t = [last] + self.t[1:self.size-1]
+        self.size -= 1
+        self.equilibreDescente(0)
+    
+    def Ajout(self, key) :
+        self.t.append(key)
+        self.size += 1
+    
+    def AjoutsIteratifs(self, keys) :
+        for key in keys :
+            self.Ajout(key)
 
 
 def test() :
@@ -292,18 +327,24 @@ def test() :
     print()
     t3.SupprMin()
     print(t3.toStr())
-    # t2 = tas_min_tree()
-    # t2.Ajout(2)
-    # print()
-    # print(t2.toStr())
-    #
-    # chemin2 = [int(bit) for bit in bin(t2.size)[3:]]
-    # print(chemin2)
-    # t2.SupprMin()
-    # print()
-    # print(t2.toStr())
-    # t1.SupprMin()
+
+
+def test_array() :
+    t1 = tas_min_array()
+    for i in range(1, 16) :
+        t1.Ajout(i)
+    print(t1.t)
+    t1.SupprMin()
+    print(t1.t)
+    
+    t2 = tas_min_array()
+    t2.AjoutsIteratifs([2, 6, 5, 10, 13, 7, 8, 12, 15, 14])
+    print(t2.t)
+    t2.SupprMin()
+    print(t2.t)
+    
 
 
 if __name__ == "__main__" :
-    test()
+    #test_tree()
+    test_array()
