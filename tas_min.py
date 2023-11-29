@@ -112,17 +112,19 @@ class node :
                 n = self.droite.AjoutNode(val, chemin[1:])
                 return self.equilibreUnEtage(n, 1)
 
-    def initUnbalancedNode(keys, lenkeys) :
-        if keys == [] :
-            return None
-
-        curr_node = node(keys[0])
-        keys = keys[1:]
-        lenkeys -= 1
-        mid = (lenkeys + 1) // 2
-        curr_node.gauche = node.initUnbalancedNode(keys[0:mid], mid)
-        curr_node.droite = node.initUnbalancedNode(keys[mid:], lenkeys-mid)
-        return curr_node
+    def initUnbalancedNodes(self, keys, lenkeys, i_curr) :
+        i_gauche = i_curr * 2 + 1
+        i_droite = i_curr * 2 + 2
+        
+        if i_gauche < lenkeys :
+            self.gauche = node(keys[i_gauche])
+            self.gauche.initUnbalancedNodes(keys, lenkeys, i_gauche)
+        
+        if i_droite < lenkeys :
+            self.droite = node(keys[i_droite])
+            self.droite.initUnbalancedNodes(keys, lenkeys, i_droite)
+        
+        return self
 
     # parcours suffixe, rééquilibre tous les noeuds
     def equilibreTout(self) :
@@ -230,7 +232,8 @@ class tas_min_tree(tas_min_interface) :
         else :
             #root = node(keys[1])
             t1 = tas_min_tree()
-            t1.root = node.initUnbalancedNode(keys, len(keys))
+            t1.root = node(keys[0])
+            t1.root.initUnbalancedNodes(keys, len(keys), 0)
             t1.root = t1.root.equilibreTout()
             return t1
 
@@ -292,54 +295,17 @@ class tas_min_array(tas_min_interface) :
             self.Ajout(key)
 
 
-def test() :
-
+def test_tree() :
+    keys = [x for x in range(1,14)]
+    rd.shuffle(keys)
+    
     t1 = tas_min_tree()
-    for i in range(15, 0, -1) :
-        t1.Ajout(i)
-    print()
+    t1.AjoutsIteratifs(keys)
+    t2 = tas_min_tree.Construction(keys)
+    
     print(t1.toStr())
-
-    t2 = tas_min_tree()
-    keys = [x for x in range(15, 0, -1)]
-    t2.AjoutsIteratifs(keys)
     print(t2.toStr())
-
-    keys1 = [5, 1, 2, 4, 6, 3]
-    t3 = tas_min_tree.Construction(keys1)
-    print(t3.toStr())
-
-    t1 = tas_min_tree()
-    for i in range(1, 9, 1) :
-        t1.Ajout(i)
-    print()
-    print(t1.toStr())
-    chemin1 = [int(bit) for bit in bin(t1.size)[3:]]
-    print()
-    print(chemin1)
-    print()
-    t1.SupprMin()
-    print(t1.toStr())
-    t3 = tas_min_tree()
-    t3.Ajout(2)
-    t3.Ajout(6)
-    t3.Ajout(5)
-    t3.Ajout(10)
-    t3.Ajout(13)
-    t3.Ajout(7)
-    t3.Ajout(8)
-    t3.Ajout(12)
-    t3.Ajout(15)
-    t3.Ajout(14)
-    print()
-    print(t3.toStr())
-    chemin3 = [int(bit) for bit in bin(t3.size)[3:]]
-    print()
-    print(chemin3)
-    print()
-    t3.SupprMin()
-    print(t3.toStr())
-
+    
 
 def test_array() :
     t1 = tas_min_array()
@@ -371,5 +337,5 @@ def test_array() :
 
 
 if __name__ == "__main__" :
-    #test_tree()
-    test_array()
+    test_tree()
+    #test_array()
