@@ -216,7 +216,6 @@ class tas_min_tree(tas_min_interface) :
         if self.root :
             # le chemin est la liste des bits de [taille arbre + 1] en binaire, sauf le bit le plus lourd
             chemin = [int(bit) for bit in bin(self.size + 1)[3:]] # [3:] car on supprime 0b et le first bit
-            #print(chemin)
             self.root = self.root.AjoutNode(val, chemin)
         else :
             self.root = node(val)
@@ -230,7 +229,6 @@ class tas_min_tree(tas_min_interface) :
         if keys == [] :
             return tas_min_tree()
         else :
-            #root = node(keys[1])
             t1 = tas_min_tree()
             t1.root = node(keys[0])
             t1.root.initUnbalancedNodes(keys, len(keys), 0)
