@@ -5,13 +5,13 @@ class tas_min_interface :
     def SupprMin(self) :
         pass
 
-    def Ajout(self) :
+    def Ajout(self, key) :
         pass
     
-    def AjoutsIteratifs(self) :
+    def AjoutsIteratifs(self, keys) :
         pass
     
-    def Construction() :
+    def Construction(keys) :
         pass
     
     def Union(t1, t2) :
@@ -136,8 +136,21 @@ class node :
             if self.droite :
                 self.droite = self.droite.equilibreTout()
             rootnode = self.equilibreDescente()
-
+            
             return rootnode
+
+        # TENTATIVE POUR LE FAIRE FONCTIONNER AVEC DES REMONTEES
+        # MAIS IL FAUDRAIT REMONTER PLUS D'UN ETAGE CHAQUE NOEUD        
+        #print("equilibreTout")
+        #curr = self
+        #
+        #if curr.gauche :
+        #    curr = curr.equilibreUnEtage(curr.gauche, 0)
+        #    curr.gauche = curr.gauche.equilibreTout()
+        #if curr.droite :
+        #    curr = curr.equilibreUnEtage(curr.droite, 1)
+        #    curr.droite = curr.droite.equilibreTout()
+        #return curr
 
     def equilibreDescente(self) :
         d = self.droite
@@ -291,10 +304,13 @@ class tas_min_array(tas_min_interface) :
     def AjoutsIteratifs(self, keys) :
         for key in keys :
             self.Ajout(key)
+    
+    def Construction(keys) :
+        pass
 
 
 def test_tree() :
-    keys = [x for x in range(1,14)]
+    keys = [x for x in range(1,6)]
     rd.shuffle(keys)
     
     t1 = tas_min_tree()
