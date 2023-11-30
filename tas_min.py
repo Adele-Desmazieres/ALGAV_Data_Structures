@@ -255,6 +255,9 @@ class tas_min_array(tas_min_interface) :
         self.t = [] # TODO check python list are okay, or use array module
         self.size = 0
     
+    def toStr(self) :
+        return str(self.t)
+    
     def getIndexFilsDroit(self, i_curr) :
         i_droit = 2 * i_curr + 2
         return i_droit if i_droit < self.size else -1
@@ -275,7 +278,7 @@ class tas_min_array(tas_min_interface) :
         if i_gauche > 0 and self.t[i_gauche] < self.t[i_curr] :
             i_swap = i_gauche
         
-        if i_droit > 0 and self.t[i_droit] < self.t[i_gauche] :
+        if i_droit > 0 and self.t[i_droit] < self.t[i_gauche] and self.t[i_droit] < self.t[i_curr] :
             i_swap = i_droit
         
         if i_swap > 0 :
@@ -290,7 +293,6 @@ class tas_min_array(tas_min_interface) :
     
     def equilibreMontee(self, i_curr) :
         i_pere = self.getIndexPere(i_curr)
-        #print(i_curr, i_pere, self.t)
         
         if i_pere > -1 and self.t[i_pere] > self.t[i_curr] :
             self.t[i_curr], self.t[i_pere] = self.t[i_pere], self.t[i_curr]
@@ -305,8 +307,29 @@ class tas_min_array(tas_min_interface) :
         for key in keys :
             self.Ajout(key)
     
+    def equilibreTout(self, i_curr) :
+        i_gauche = self.getIndexFilsGauche(i_curr)
+        i_droite = self.getIndexFilsDroit(i_curr)
+        
+        if i_gauche > 0 :
+           self.equilibreTout(i_gauche)
+        if i_droite > 0 :
+           self.equilibreTout(i_droite)
+
+        #print(self.toStr(), i_curr, self.t[i_curr])
+        self.equilibreDescente(i_curr)
+        
+    
     def Construction(keys) :
-        pass
+        if keys == [] :
+            return tas_min_array()
+        else :
+            t1 = tas_min_array()
+            t1.t = keys
+            t1.size = len(keys)
+            t1.equilibreTout(0)
+            return t1
+
 
 
 def test_tree() :
@@ -349,7 +372,20 @@ def test_array() :
     print(t3.t)
     
 
+def test_both() :
+    #keys = [x for x in range(1,6)]
+    keys = [1, 4, 2, 5, 3]
+    rd.shuffle(keys)
+    print(keys)
+    
+    tt = tas_min_tree.Construction(keys)
+    ta = tas_min_array.Construction(keys)
+    
+    print(tt.toStr())
+    print(ta.toStr())
+
 
 if __name__ == "__main__" :
-    test_tree()
+    #test_tree()
     #test_array()
+    test_both()
