@@ -181,7 +181,22 @@ class node :
             self.gauche = g2
             g.gauche = g.gauche.equilibreDescente()
             return g
-
+    
+    def getKeysLargeur(self) :
+        file = []
+        keys = []
+        file.append(self)
+        while len(file) > 0 :
+            curr_node = file[0]
+            file = file[1:]
+            keys.append(curr_node.val)
+            if curr_node.gauche :
+                file.append(curr_node.gauche)
+            if curr_node.droite :
+                file.append(curr_node.droite)
+        return keys
+        
+    
 
 class tas_min_tree(tas_min_interface) :
 
@@ -247,6 +262,16 @@ class tas_min_tree(tas_min_interface) :
             t1.root.initUnbalancedNodes(keys, len(keys), 0)
             t1.root = t1.root.equilibreTout()
             return t1
+    
+    def Union(t1, t2) :
+        if not t1.root :
+            return t2
+        elif not t2.root :
+            return t1
+        else :
+            k1 = t1.root.getKeysLargeur()
+            k2 = t2.root.getKeysLargeur()
+            return tas_min_tree.Construction(k1 + k2)
 
 
 class tas_min_array(tas_min_interface) :
@@ -329,6 +354,9 @@ class tas_min_array(tas_min_interface) :
             t1.size = len(keys)
             t1.equilibreTout(0)
             return t1
+    
+    def Union(t1, t2) :
+        return tas_min_array.Construction(t1.t + t2.t)
 
 
 
@@ -372,7 +400,7 @@ def test_array() :
     print(t3.t)
     
 
-def test_both() :
+def test_construction() :
     #keys = [x for x in range(1,6)]
     keys = [1, 4, 2, 5, 3]
     rd.shuffle(keys)
@@ -385,7 +413,26 @@ def test_both() :
     print(ta.toStr())
 
 
+def test_union() :
+    k1 = [1, 5, 2]
+    k2 = [3, 4, 6]
+    
+    tt1 = tas_min_tree.Construction(k1)
+    tt2 = tas_min_tree.Construction(k2)
+    ttu = tas_min_tree.Union(tt1, tt2)
+    print(ttu.toStr())
+    
+    ta1 = tas_min_array.Construction(k1)
+    ta2 = tas_min_array.Construction(k2)
+    tau = tas_min_array.Union(ta1, ta2)
+    print(tau.toStr())
+    
+    
+
+
 if __name__ == "__main__" :
     #test_tree()
     #test_array()
-    test_both()
+    #test_construction()
+    #test_union()
+    
