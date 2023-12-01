@@ -11,50 +11,59 @@ class uint128 :
 		val4 = (intval >> 96) & mask
 		
 		self.val = [ctypes.c_uint32(val1), ctypes.c_uint32(val2), ctypes.c_uint32(val3), ctypes.c_uint32(val4)]
+		self.size = len(self.val)
 	
-	def printuint(self) :
-		print([x.value for x in self.val])
-	
-	def inf(cle1, cle2) :
-		for i in range(3,-1,-1):
-			if cle1.val[i].value < cle2.val[i].value: return True
-		return False
-	
-	def inf_dynamic(self, x2) :
-		return uint128.inf(self, x2)
-	
-	def eg(cle1, cle2) :
-		for i in range (4):
-			if cle1.val[i].value != cle2.val[i].value: return False
+	def __eq__(self, x2) :
+		for i in range(self.size):
+			if self.val[i].value != x2.val[i].value: 
+				return False
 		return True
 	
-	def eg_dynamic(self, x2) :
-		return uint128.eg(self, x2)
+	def __ne__(self, x2) :
+		return not (self == x2)
+	
+	def __lt__(self, x2) :
+		for i in range(self.size-1, -1, -1):
+			if self.val[i].value < x2.val[i].value:
+				return True
+			elif self.val[i].value > x2.val[i].value:
+				return False
+		return False
+	
+	def __le__(self, x2) :
+		return (self < x2) or (self == x2)
+	
+	def __gt__(self, x2) :
+		return (x2 < self)
+	
+	def __ge__(self, x2) :
+		return (x2 <= self)
+	
+	def __str__(self) :
+		return str(self.val)
+
 
 def test() :
 	x1 = uint128(2**46)
 	x2 = uint128(2**46)
-	print(uint128.inf(x1, x2))
-	print(uint128.inf(x2, x1))
-
-	print(x1.inf_dynamic(x2))
-	print(x2.inf_dynamic(x1))
-
-	print(x1.inf(x2))
-	print(x2.inf(x1))
-
-	print(uint128.eg(x1, x2))
-	print(uint128.eg(x2, x1))
-
-	print(x1.eg_dynamic(x2))
-	print(x2.eg_dynamic(x1))
-
-	print(x1.eg(x2))
-	print(x2.eg(x1))
-	y = [1,2,3]
-	x1.printuint()
-	print(x1)
+	x3 = uint128(2**46 - 1)
 	
+	print("x1 =", x1)
+	print("x2 =", x2)
+	print("x3 =", x3)
+	
+	assert((x1 == x2) == True)
+	assert((x1 == x3) == False)
+	assert((x1 < x2) == False)
+	assert((x1 < x3) == False)
+	assert((x1 <= x2) == True)
+	assert((x1 <= x3) == False)
+	assert((x1 > x2) == False)
+	assert((x1 > x3) == True)
+	assert((x1 >= x2) == True)
+	assert((x1 >= x3) == True)
+	
+	print("Tous les tests sont valides.")
 
 
 if __name__ == "__main__" :
