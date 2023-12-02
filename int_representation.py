@@ -40,7 +40,7 @@ class uint128 :
 		return (x2 <= self)
 	
 	def __str__(self) :
-		return str(self.val)
+		return "_".join([str(x.value) for x in self.val])
 
 
 def test() :

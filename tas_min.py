@@ -1,4 +1,5 @@
 import random as rd # temporaire, pour test
+import int_representation as ir
 
 class tas_min_interface :
 
@@ -25,10 +26,10 @@ class node :
         self.gauche = None # node
         self.droite = None # node
 
-    def toStr(self) :
+    def __str__(self) :
         elt_str = str(self.val)
-        g_str = self.gauche.toStr() if self.gauche else "#"
-        d_str = self.droite.toStr() if self.droite else "#"
+        g_str = self.gauche.__str__() if self.gauche else "#"
+        d_str = self.droite.__str__() if self.droite else "#"
         return "(" + g_str + ", " + elt_str + ", " + d_str + ")"
 
     def equilibreUnEtage(self, n, isFromRight) :
@@ -270,11 +271,11 @@ class tas_min_tree(tas_min_interface) :
         t.root = node(val)
         return t
 
-    def toStr(self) :
+    def __str__(self) :
         if not self.root :
             return "Empty tree\n"
         else :
-            return self.root.toStr()
+            return self.root.__str__()
 
     def SupprMin(self) :
         if self.size == 0 :
@@ -347,8 +348,8 @@ class tas_min_array(tas_min_interface) :
         self.t = [] # TODO check python list are okay, or use array module
         self.size = 0
     
-    def toStr(self) :
-        return str(self.t)
+    def __str__(self) :
+        return "[" + (", ".join([str(x) for x in self.t])) + "]"
     
     def getIndexFilsDroit(self, i_curr) :
         i_droit = 2 * i_curr + 2
@@ -408,7 +409,7 @@ class tas_min_array(tas_min_interface) :
         if i_droite > 0 :
            self.equilibreTout(i_droite)
 
-        #print(self.toStr(), i_curr, self.t[i_curr])
+        #print(self.__str__(), i_curr, self.t[i_curr])
         self.equilibreDescente(i_curr)
     
     def Construction(keys) :
@@ -470,23 +471,23 @@ def test_tree() :
     t1.AjoutsIteratifs(keys)
     t2 = tas_min_tree.Construction(keys)
     
-    print(t1.toStr())
-    print(t2.toStr())
+    print(t1)
+    print(t2)
     
 
 def test_array() :
     t1 = tas_min_array()
     for i in range(1, 16) :
         t1.Ajout(i)
-    print(t1.t)
+    print(t1)
     t1.SupprMin()
-    print(t1.t)
+    print(t1)
     
     t2 = tas_min_array()
     t2.AjoutsIteratifs([2, 6, 5, 10, 13, 7, 8, 12, 15, 14])
-    print(t2.t)
+    print(t2)
     t2.SupprMin()
-    print(t2.t)
+    print(t2)
     print()
     
     
@@ -495,11 +496,11 @@ def test_array() :
     
     t3arbre = tas_min_tree()
     t3arbre.AjoutsIteratifs(keys)
-    print(t3arbre.toStr())
+    print(t3arbre)
     
     t3 = tas_min_array()
     t3.AjoutsIteratifs(keys)
-    print(t3.t)
+    print(t3)
     
 
 def test_construction() :
@@ -511,26 +512,26 @@ def test_construction() :
     tt = tas_min_tree.Construction(keys)
     ta = tas_min_array.Construction(keys)
     
-    print(tt.toStr())
-    print(ta.toStr())
+    print(tt)
+    print(ta)
 
 
 def test_union() :
-    k1 = [x for x in range(1, 101)]
-    k2 = [x for x in range(101, 201)]
+    k1 = [ir.uint128(x) for x in range(1, 11)]
+    k2 = [ir.uint128(x) for x in range(11, 21)]
     rd.shuffle(k1)
     rd.shuffle(k2)
     
     tt1 = tas_min_tree.Construction(k1)
     tt2 = tas_min_tree.Construction(k2)
     ttu = tas_min_tree.Union(tt1, tt2)
-    #print(ttu.toStr())
+    print(ttu, "\n")
     assert(ttu.isTasMin())
     
     ta1 = tas_min_array.Construction(k1)
     ta2 = tas_min_array.Construction(k2)
     tau = tas_min_array.Union(ta1, ta2)
-    #print(tau.toStr())
+    print(tau, "\n")
     assert(tau.isTasMin())
     
     print("Tests d'union validés.")
