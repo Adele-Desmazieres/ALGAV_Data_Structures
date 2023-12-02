@@ -195,7 +195,68 @@ class node :
             if curr_node.droite :
                 file.append(curr_node.droite)
         return keys
+    
+    def isWellFormed(self) :
+        file = []
+        file.append(self)
+        reachedLastNode = False
         
+        while len(file) > 0 :
+            curr_node = file[0]
+            file = file[1:]
+            if curr_node.gauche :
+                if reachedLastNode :
+                    print("Arbre mal formé pour un tas min.")
+                    return False
+                file.append(curr_node.gauche)
+            else :
+                reachedLastNode = True
+            
+            if curr_node.droite :
+                if reachedLastNode :
+                    print("Arbre mal formé pour un tas min.")
+                    return False
+                file.append(curr_node.droite)
+            else :
+                reachedLastNode = True
+        
+        return True
+    
+    def isCroissant(self) :
+        d, g = True, True
+        if self.droite :
+            if self.val > self.droite.val : 
+                print("Arbre non croissant.")
+                return False
+            d = self.droite.isCroissant()
+        if self.gauche :
+            if self.val > self.gauche.val : 
+                print("Arbre non croissant.")
+                return False
+            g = self.gauche.isCroissant()
+        return (g and d)
+        
+    def getNumberDesc(self) :
+        d, g = 0, 0
+        if self.droite :
+            d = self.droite.getNumberDesc()
+        if self.gauche :
+            g = self.gauche.getNumberDesc()
+        return (1 + g + d)        
+    
+    # vérifie que l'arbre a une forme de tas min 
+    # (feuilles réparties sur un ou deux étages, et entassées le plus à gauche)
+    # que les valeurs de ses noeuds sont croissants depuis la racine
+    # et que sa taille est égale à son nombre de noeuds
+    def isTasMinNode(self, size) :
+        a = self.isWellFormed()
+        b = self.isCroissant()
+        n = self.getNumberDesc()
+        c = True
+        if n != size :
+            print("Mauvais nombre de noeuds dans l'arbre : ", n, " VS ", size, ".", sep='')
+            c = False
+        return (a and b and c)
     
 
 class tas_min_tree(tas_min_interface) :
@@ -260,6 +321,7 @@ class tas_min_tree(tas_min_interface) :
             t1 = tas_min_tree()
             t1.root = node(keys[0])
             t1.root.initUnbalancedNodes(keys, len(keys), 0)
+            t1.size = len(keys)
             t1.root = t1.root.equilibreTout()
             return t1
     
@@ -272,6 +334,11 @@ class tas_min_tree(tas_min_interface) :
             k1 = t1.root.getKeysLargeur()
             k2 = t2.root.getKeysLargeur()
             return tas_min_tree.Construction(k1 + k2)
+    
+    def isTasMin(self) :
+        if not self.root :
+            return (self.size == 0)
+        return self.root.isTasMinNode(self.size)
 
 
 class tas_min_array(tas_min_interface) :
@@ -343,7 +410,6 @@ class tas_min_array(tas_min_interface) :
 
         #print(self.toStr(), i_curr, self.t[i_curr])
         self.equilibreDescente(i_curr)
-        
     
     def Construction(keys) :
         if keys == [] :
@@ -357,6 +423,42 @@ class tas_min_array(tas_min_interface) :
     
     def Union(t1, t2) :
         return tas_min_array.Construction(t1.t + t2.t)
+    
+    def isWellFormed(self) :
+        return all([(x is not None) for x in self.t])
+    
+    def isCroissant(self, i_curr) :
+        i_g = self.getIndexFilsGauche(i_curr)
+        i_d = self.getIndexFilsDroit(i_curr)
+        g, d = True, True
+        
+        if i_g > 0 :
+            if self.t[i_curr] > self.t[i_g] :
+                print("Tableau non croissant.")
+                return False
+            else :
+                g = self.isCroissant(i_g)
+        
+        if i_d > 0 :
+            if self.t[i_curr] > self.t[i_d] :
+                print("Tableau non croissant.")
+                return False
+            else :
+                d = self.isCroissant(i_d)
+        
+        return (g and d)
+    
+    def isTasMin(self) :
+        if self.t == [] :
+            return (self.size == 0)
+        a = self.isWellFormed()
+        if not a : print("Elément None dans le tableau.")
+        b = self.isCroissant(0)
+        c = True
+        if len(self.t) != self.size :
+            print("Mauvais nombre d'éléments dans le tableau.")
+            c = False
+        return (a and b and c)
 
 
 
@@ -414,25 +516,29 @@ def test_construction() :
 
 
 def test_union() :
-    k1 = [1, 5, 2]
-    k2 = [3, 4, 6]
+    k1 = [x for x in range(1, 101)]
+    k2 = [x for x in range(101, 201)]
+    rd.shuffle(k1)
+    rd.shuffle(k2)
     
     tt1 = tas_min_tree.Construction(k1)
     tt2 = tas_min_tree.Construction(k2)
     ttu = tas_min_tree.Union(tt1, tt2)
-    print(ttu.toStr())
+    #print(ttu.toStr())
+    assert(ttu.isTasMin())
     
     ta1 = tas_min_array.Construction(k1)
     ta2 = tas_min_array.Construction(k2)
     tau = tas_min_array.Union(ta1, ta2)
-    print(tau.toStr())
+    #print(tau.toStr())
+    assert(tau.isTasMin())
     
-    
+    print("Tests d'union validés.")
 
 
 if __name__ == "__main__" :
     #test_tree()
     #test_array()
     #test_construction()
-    #test_union()
+    test_union()
     
