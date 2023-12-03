@@ -12,6 +12,9 @@ class tas_min_interface :
     def AjoutsIteratifs(self, keys) :
         pass
     
+    def AjoutsIteratifsStatic(keys) :
+        pass
+    
     def Construction(keys) :
         pass
     
@@ -315,6 +318,11 @@ class tas_min_tree(tas_min_interface) :
         for k in keys :
             self.Ajout(k)
 
+    def AjoutsIteratifsStatic(keys) :
+        ret = tas_min_tree()
+        ret.AjoutsIteratifs(keys)
+        return ret
+
     def Construction(keys) :
         if keys == [] :
             return tas_min_tree()
@@ -399,6 +407,11 @@ class tas_min_array(tas_min_interface) :
     def AjoutsIteratifs(self, keys) :
         for key in keys :
             self.Ajout(key)
+    
+    def AjoutsIteratifsStatic(keys) :
+        ret = tas_min_array()
+        ret.AjoutsIteratifs(keys)
+        return ret
     
     def equilibreTout(self, i_curr) :
         i_gauche = self.getIndexFilsGauche(i_curr)
