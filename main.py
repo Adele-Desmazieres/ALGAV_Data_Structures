@@ -12,7 +12,8 @@ DIRECTORY = "cles_alea/"
 def mesure_temps(keys, cons_f) :
     start = time.time()
     cons_f(keys)
-    return time.time() - start
+    ret = time.time() - start
+    return ret
 
 
 def moyenne_temps(keys_list, cons_f) :
@@ -25,6 +26,7 @@ def moyenne_temps(keys_list, cons_f) :
 
 # [liste_des_listes_de_1000_clefs, liste_des_listes_de_5000_clefs...]
 def graphe_temps(keys_lists_by_size) : 
+    print("Measuring the construction times...")
     
     temps_tree_cons = []
     temps_tree_ajout = []
@@ -36,17 +38,26 @@ def graphe_temps(keys_lists_by_size) :
         temps_tree_ajout.append(moyenne_temps(keys_list, tas_min_tree.AjoutsIteratifsStatic))
         temps_array_cons.append(moyenne_temps(keys_list, tas_min_array.Construction))
         temps_array_ajout.append(moyenne_temps(keys_list, tas_min_array.AjoutsIteratifsStatic))
+
+    fig, axs = plt.subplots(1, 2)
+    fig.suptitle("Temps de création d'un tas min en fonction de sa taille")
     
-    plt.plot(NOMBRE_CLEFS, temps_tree_cons, label="Construction")
-    plt.plot(NOMBRE_CLEFS, temps_tree_ajout, label="AjoutsIteratifs")
-    plt.legend()
+    xval = [n/1000 for n in NOMBRE_CLEFS]
     
-    #axes = plt.gca()
-    #axes.xaxis.set_major_locator(plt.MaxNLocator(11))
-    #axes.yaxis.set_major_locator(plt.MaxNLocator(11))
+    axs[0].plot(xval, temps_tree_cons, label="Construction")
+    axs[0].plot(xval, temps_tree_ajout, label="AjoutsIteratifs")
+    axs[0].legend()
+    axs[0].set(xlabel="Taille du tas (en milliers de noeuds)", ylabel="Temps de création (en secondes)")
+    axs[0].set_title("Tas min par arbre")
+    axs[0].grid()
+
+    axs[1].plot(xval, temps_array_cons, label="Construction")
+    axs[1].plot(xval, temps_array_ajout, label="AjoutsIteratifs")
+    axs[1].legend()
+    axs[1].set(xlabel="Taille du tas (en milliers de noeuds)")
+    axs[1].set_title("Tas min par tableau")
+    axs[1].grid()
     
-    plt.title("Temps d'exécution de la création d'un tas min par arbre")
-    plt.grid()
     plt.show()
     plt.close()
 
@@ -64,8 +75,9 @@ def process_keys(filename) :
 
 def process_all_keys() :
     keys_lists_by_size = [[None for x in range(len(INDICES_JEUX_DONNEES))] for y in range(len(NOMBRE_CLEFS))]
-    print(len(keys_lists_by_size))
-    print(len(keys_lists_by_size[0]))
+    print("Processing the files...")
+    #print(len(keys_lists_by_size))
+    #print(len(keys_lists_by_size[0]))
     #print(len(keys_lists_by_size[0][0]))
     
     for i in range(len(NOMBRE_CLEFS)) :
@@ -85,6 +97,7 @@ def main() :
     #print(keys[0], keys[1], keys[2])
     keys_lists_by_size = process_all_keys()
     graphe_temps(keys_lists_by_size)
+    print("Done.")
 
 
 if __name__ == "__main__" :
