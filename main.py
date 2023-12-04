@@ -5,7 +5,6 @@ from int_representation import *
 from tas_min import *
 
 INDICES_JEUX_DONNEES = [1, 2, 3, 4, 5]
-#INDICES_JEUX_DONNEES = [5]
 NOMBRE_CLEFS = [1000, 5000, 10000, 20000, 50000, 80000, 120000, 200000]
 DIRECTORY = "cles_alea/"
 
@@ -17,30 +16,9 @@ def mesure_temps(keys, cons_f) :
     return ret
 
 
-def moyenne_temps(keys_list, cons_f) :
-    m = 0
-    for keys in keys_list :
-        m = m + mesure_temps(keys, cons_f)
-    m = m / len(keys_list)
-    return m
-
-
-# [liste_des_listes_de_1000_clefs, liste_des_listes_de_5000_clefs...]
-def graphe_temps(keys_lists_by_size) : 
-    print("Measuring construction times...")
-    
-    temps_tree_cons = []
-    temps_tree_ajout = []
-    temps_array_cons = []
-    temps_array_ajout = []
-    
-    for keys_list in keys_lists_by_size :
-        temps_tree_cons.append(moyenne_temps(keys_list, tas_min_tree.Construction))
-        temps_tree_ajout.append(moyenne_temps(keys_list, tas_min_tree.AjoutsIteratifsStatic))
-        temps_array_cons.append(moyenne_temps(keys_list, tas_min_array.Construction))
-        temps_array_ajout.append(moyenne_temps(keys_list, tas_min_array.AjoutsIteratifsStatic))
-
+def graphe_temps(temps_tree_cons, temps_tree_ajout, temps_array_cons, temps_array_ajout) : 
     print("Making plots...")
+    
     fig, axs = plt.subplots(1, 2)
     fig.suptitle("Temps de création d'un tas min en fonction de sa taille")
     
@@ -79,10 +57,12 @@ def process_keys(filename) :
 
 def process_all_keys() :
     keys_lists_by_size = [[None for x in range(len(INDICES_JEUX_DONNEES))] for y in range(len(NOMBRE_CLEFS))]
+    temps_tree_cons = [0] * len(NOMBRE_CLEFS)
+    temps_tree_ajout = [0] * len(NOMBRE_CLEFS)
+    temps_array_cons = [0] * len(NOMBRE_CLEFS)
+    temps_array_ajout = [0] * len(NOMBRE_CLEFS)
+
     print("Processing files...")
-    #print(len(keys_lists_by_size))
-    #print(len(keys_lists_by_size[0]))
-    #print(len(keys_lists_by_size[0][0]))
     
     for i in range(len(NOMBRE_CLEFS)) :
         keys_number = NOMBRE_CLEFS[i]
@@ -91,16 +71,29 @@ def process_all_keys() :
             jeu_indice = INDICES_JEUX_DONNEES[j]
             
             filename = DIRECTORY + "jeu_" + str(jeu_indice) + "_nb_cles_" + str(keys_number) + ".txt"
-            keys_lists_by_size[i][j] = process_keys(filename)
+            print("\t" + filename)
+            keys = process_keys(filename)
+            t1 = mesure_temps(keys, tas_min_tree.Construction)
+            t2 = mesure_temps(keys, tas_min_tree.AjoutsIteratifsStatic)
+            t3 = mesure_temps(keys, tas_min_array.Construction)
+            t4 = mesure_temps(keys, tas_min_array.AjoutsIteratifsStatic)
+            
+            temps_tree_cons[i] += t1
+            temps_tree_ajout[i] += t2
+            temps_array_cons[i] += t3
+            temps_array_ajout[i] += t4
+
+    temps_tree_cons = [x/len(temps_tree_cons) for x in temps_tree_cons]
+    temps_tree_ajout = [x/len(temps_tree_ajout) for x in temps_tree_ajout]
+    temps_array_cons = [x/len(temps_array_cons) for x in temps_array_cons]
+    temps_array_ajout = [x/len(temps_array_ajout) for x in temps_array_ajout]
     
-    return keys_lists_by_size
+    return (temps_tree_cons, temps_tree_ajout, temps_array_cons, temps_array_ajout)
 
 
 def main() :
-    #keys = process_keys("cles_alea/jeu_1_nb_cles_1000.txt")
-    #print(keys[0], keys[1], keys[2])
-    keys_lists_by_size = process_all_keys()
-    graphe_temps(keys_lists_by_size)
+    t1, t2, t3, t4 = process_all_keys()
+    graphe_temps(t1, t2, t3, t4)
     print("Done.")
 
 
