@@ -42,19 +42,55 @@ class Node:
         l = []
         if self.next_bro:
             l = self.next_bro.getBrothers()
-        return l.append(self)
+        l.append(self)
+        return l
     
-    def degre(self):
+    def deg(self):
         return len(self.child.getBrothers())
     
+    # TODO SORT PAR DEGRES ET PAS PAR VAL
     def sortByDeg(self):
         root = self
         curr = self
-        while curr not None:
-            pass
-            # TODO
+        nextnode = self
         
-        
+        while curr is not None:
+            nextnode = curr.next_bro
+            newprev = curr
+            tmp = newprev.prev_bro
+            #while (newprev and newprev.prev_bro and newprev.prev_bro.val > curr.val) or (not newprev):
+            while tmp and tmp.val > curr.val:
+                print(tmp.val, newprev.val)
+                newprev = tmp
+                tmp = tmp.prev_bro
+                
+            if newprev == curr or newprev.val > curr.val:
+                newprev = tmp
+            
+            a = root.val if root else "None"
+            b = curr.val if curr else "None"
+            c = nextnode.val if nextnode else "None"
+            d = newprev.val if newprev else "None"
+            e = tmp.val if tmp else "None"
+            
+            print(a, b, c, d, e,"\n")
+            if newprev != curr and newprev != curr.prev_bro:
+                
+                if curr.prev_bro is not None: curr.prev_bro.next_bro = curr.next_bro
+                if curr.next_bro is not None: curr.next_bro.prev_bro = curr.prev_bro
+                
+                if newprev is not None:
+                    curr.next_bro = newprev.next_bro
+                    newprev.next_bro = curr
+                else:
+                    curr.next_bro = root
+                    root.prev_bro = curr
+                    root = curr
+                curr.prev_bro = newprev
+                
+            curr = nextnode
+            print(root)
+
         return root
     
     def decapite(self):
@@ -73,15 +109,18 @@ class BinomialQueue:
         self.min_key_node = None # la racine du tournois dont la clef est la plus petite
     
     def initTournoisDecapite(node):
-        racine = node.sortByDeg()
-        self.head = racine
-        self.min_key_node = min(node.getBrothers())
-        return self
+        b = BinomialQueue()
+        if node.child is not None:
+            root = node.child.sortByDeg()
+            b.head = root
+            b.min_key_node = min(node.getBrothers())
+        return b
     
     def initTournois(node):
-        self.head = node
-        self.min_key_node = node
-        return self
+        b = BinomialQueue()
+        b.head = node
+        b.min_key_node = node
+        return b
     
     def __str__(self):
         if self.head:
@@ -96,7 +135,7 @@ class BinomialQueue:
         return self.minroot
     
     def reste(self):
-        
+        pass
     
     def SupprMin(self):
         pass
@@ -128,12 +167,30 @@ def test():
     n7 = n7.union(n8)
     n12 = n12.union(n13)
     n7 = n12.union(n7)
-    print(n7)
-
-    #b = BinomialQueue()
-    
     #print(n7)
     
+    #b = BinomialQueue()
+    #print(n7)
+    
+    
+    # TEST DECAPITE 
+    
+    n7 = Node(7)
+    n1 = Node(1)
+    n3 = Node(3)
+    n5 = Node(5)
+    n2 = Node(2)
+
+    n7.setBigBrotherOf(n1)
+    n1.setBigBrotherOf(n3)
+    n3.setBigBrotherOf(n5)
+    n5.setBigBrotherOf(n2)
+
+    n0 = Node(0)
+    n0.child = n7
+    
+    b = BinomialQueue.initTournoisDecapite(n0)
+    print(b) 
     
 
 
