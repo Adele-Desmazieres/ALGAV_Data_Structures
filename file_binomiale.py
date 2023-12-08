@@ -13,13 +13,17 @@ class Node:
         ret = str(self.val)
         others = ""
         
+        if self.next_bro:
+            if self.next_bro.prev_bro == self:
+                ret += " <-> "
+            else:
+                ret += " -> " 
+            ret += str(self.next_bro.val)
+            others += self.next_bro.__str__()
+        
         if self.child:
             ret += ", pere de " + str(self.child.val)
             others += self.child.__str__()
-        
-        if self.next_bro:
-            ret += ", frere de " + str(self.next_bro.val)
-            others += self.next_bro.__str__()
         
         return ret + "\n" + others
 
@@ -60,7 +64,7 @@ class Node:
             tmp = newprev.prev_bro
             #while (newprev and newprev.prev_bro and newprev.prev_bro.val > curr.val) or (not newprev):
             while tmp and tmp.val > curr.val:
-                print(tmp.val, newprev.val)
+                #print(tmp.val, newprev.val)
                 newprev = tmp
                 tmp = tmp.prev_bro
                 
@@ -72,15 +76,18 @@ class Node:
             c = nextnode.val if nextnode else "None"
             d = newprev.val if newprev else "None"
             e = tmp.val if tmp else "None"
-            
-            print(a, b, c, d, e,"\n")
+            #print(a, b, c, d, e,"\n")
+
             if newprev != curr and newprev != curr.prev_bro:
-                
+                                
                 if curr.prev_bro is not None: curr.prev_bro.next_bro = curr.next_bro
                 if curr.next_bro is not None: curr.next_bro.prev_bro = curr.prev_bro
                 
                 if newprev is not None:
-                    curr.next_bro = newprev.next_bro
+                    #print(True)
+                    newnext = newprev.next_bro
+                    curr.next_bro = newnext
+                    newnext.prev_bro = curr
                     newprev.next_bro = curr
                 else:
                     curr.next_bro = root
@@ -89,7 +96,7 @@ class Node:
                 curr.prev_bro = newprev
                 
             curr = nextnode
-            print(root)
+            #print(root)
 
         return root
     
