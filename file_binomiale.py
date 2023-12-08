@@ -7,8 +7,6 @@ class Node:
         self.next_bro = None
         self.prev_bro = None
         
-        #self.childs = []
-    
     def __str__(self) :
         ret = str(self.val)
         others = ""
@@ -28,11 +26,15 @@ class Node:
         return ret + "\n" + others
 
     def setBigBrotherOf(self, n):
+    """ Node, Node -> Node
+        Met un noeud en tant que grand frère de l'autre."""
         self.next_bro = n
         if n is not None:
             n.prev_bro = self
         
     def union(self, n):
+    """ Node, Node -> Node
+        Renvoie l'union de deux tournois."""
         if n is None: return self
         
         if self.val > n.val:
@@ -43,6 +45,8 @@ class Node:
             return self
     
     def getBrothers(self):
+    """ Node -> Node list
+        Renvoie la liste des frères d'un noeud, lui compris."""
         l = []
         if self.next_bro:
             l = self.next_bro.getBrothers()
@@ -50,10 +54,15 @@ class Node:
         return l
     
     def deg(self):
-        return len(self.child.getBrothers())
+    """ Node -> int
+        Renvoie le degré de la racine du tournois."""
+        if self.child is None: return 0
+        else: return len(self.child.getBrothers())
     
-    # TODO SORT PAR DEGRES ET PAS PAR VAL
     def sortByDeg(self):
+    """ Node -> Node
+        Tri les noeuds de cette fraterie par degré croissant.
+        Utilise l'algorithme de tri par insertion."""
         root = self
         curr = self
         nextnode = self
@@ -62,21 +71,12 @@ class Node:
             nextnode = curr.next_bro
             newprev = curr
             tmp = newprev.prev_bro
-            #while (newprev and newprev.prev_bro and newprev.prev_bro.val > curr.val) or (not newprev):
-            while tmp and tmp.val > curr.val:
-                #print(tmp.val, newprev.val)
+            while tmp and tmp.deg() > curr.deg():
                 newprev = tmp
                 tmp = tmp.prev_bro
                 
-            if newprev == curr or newprev.val > curr.val:
+            if newprev == curr or newprev.deg() > curr.deg():
                 newprev = tmp
-            
-            a = root.val if root else "None"
-            b = curr.val if curr else "None"
-            c = nextnode.val if nextnode else "None"
-            d = newprev.val if newprev else "None"
-            e = tmp.val if tmp else "None"
-            #print(a, b, c, d, e,"\n")
 
             if newprev != curr and newprev != curr.prev_bro:
                                 
@@ -84,26 +84,28 @@ class Node:
                 if curr.next_bro is not None: curr.next_bro.prev_bro = curr.prev_bro
                 
                 if newprev is not None:
-                    #print(True)
                     newnext = newprev.next_bro
                     curr.next_bro = newnext
                     newnext.prev_bro = curr
                     newprev.next_bro = curr
+                
                 else:
                     curr.next_bro = root
                     root.prev_bro = curr
                     root = curr
                 curr.prev_bro = newprev
-                
             curr = nextnode
-            #print(root)
-
         return root
     
     def decapite(self):
+    """ Node -> BinomialQueue
+        Renvoie la file binomiale constituée des tournois 
+        obtenus en supprimant la racine du tournois."""
         return BinomialQueue.initTournoisDecapite(self)
     
     def file(self):
+    """ Node -> BinomialQueue
+        Renvoie la file binomiale constituée du tournois en argument."""
         return BinomialQueue.initTournois(self)
     
 
@@ -112,10 +114,13 @@ class BinomialQueue:
     # la file binomiale est une liste doublement chaînée de tournois
     # du tournois le plus petit au tournois le plus grand
     def __init__(self):
-        self.head = None # la racine du tournois le plus petit
-        self.min_key_node = None # la racine du tournois dont la clef est la plus petite
+        self.head = None # le tournois le plus petit en taille
+        self.min_key_node = None # le tournois dont la clef est la plus petite
     
     def initTournoisDecapite(node):
+    """ Node -> BinomialQueue
+        Renvoie la file binomiale constituée des tournois 
+        obtenus en supprimant la racine du tournois."""
         b = BinomialQueue()
         if node.child is not None:
             root = node.child.sortByDeg()
@@ -124,6 +129,8 @@ class BinomialQueue:
         return b
     
     def initTournois(node):
+    """ Node -> BinomialQueue
+        Renvoie la file binomiale constituée du tournois en argument."""
         b = BinomialQueue()
         b.head = node
         b.min_key_node = node
@@ -136,14 +143,22 @@ class BinomialQueue:
             return "File binomiale vide\n"
     
     def isEmpty(self):
+    """ BinomialQueue -> booleen
+        Renvoie vrai ssi la file est vide."""
         return (self.head is None)
     
     def minDeg(self):
-        return self.minroot
+    """ BinomialQueue -> Node 
+        Renvoie le tournois de degré minimum."""
+        return self.head
     
     def reste(self):
-        pass
-    
+        oldroot = self.head
+        self.head = oldroot.next_bro
+        oldroot.next_bro = None
+        self.head.prev_bro = None
+        return self
+            
     def SupprMin(self):
         pass
     
