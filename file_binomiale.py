@@ -1,3 +1,4 @@
+import random as rd
 
 class Node:
     """ Représente un tournois binomial.
@@ -13,7 +14,7 @@ class Node:
         self.next_bro = None
         self.prev_bro = None
         self.deg = 0
-        
+    
     def __str__(self) :
         ret = str(self.val) + " (degré " + str(self.deg) + ")"
         others = ""
@@ -25,9 +26,10 @@ class Node:
                 ret += " -> " 
             ret += str(self.next_bro.val)
             others += self.next_bro.__str__()
-        
+        #ret = ""
         if self.child:
-            ret += "\n" + str(self.val) + " père de " + str(self.child.val)
+            ret += "\n"
+            ret += str(self.val) + " père de " + str([x.val for x in self.child.getBrothers()])
             others += self.child.__str__()
         
         return ret + "\n" + others
@@ -201,7 +203,7 @@ class BinomialQueue:
             self.min_key_node = None
         return self
     
-    def AjoutMin(self, tournois):
+    def ajoutMin(self, tournois):
         """ BinomialQueue * Node -> BinomialQueue
         Hypothèse : le tournoi est de degré inférieur au tournois de degré min.
         Renvoie la file obtenue en ajoutant le tournoi comme
@@ -213,11 +215,46 @@ class BinomialQueue:
         if tournois.val < self.min_key_node.val:
             self.min_key_node = tournois
         return self
+            
+    def UFret(self, F2, T):
+        """ BinomialQueue * BinomialQueue * Node -> BinomialQueue
+        Renvoie la file binomiale union de deux files et d'un tournoi."""
+        F1 = self
+        if T is None: # pas de tournoi en retenue
+            if F1.isEmpty():
+                return F2
+            if F2.isEmpty():
+                return F1
+            T1 = F1.minDeg()
+            T2 = F2.minDeg()
+            if T1.deg < T2.deg:
+                return F1.reste().UnionFile(F2).ajoutMin(T1)
+            if T2.deg < T1.deg:
+                return F2.reste().UnionFile(F1).ajoutMin(T2)
+            else: # T1.deg == T2.deg
+                return F1.reste().UFret(F2.reste(), T1.union(T2))
+        
+        else: # tournoi T en retenue
+            if F1.isEmpty():
+                return BinomialQueue.initTournois(T).UnionFile(F2)
+            if F2.isEmpty():
+                return BinomialQueue.initTournois(T).UnionFile(F1)
+            T1 = F1.minDeg()
+            T2 = F2.minDeg()
+            if T.deg < T1.deg and T.deg < T2.deg:
+                return F1.UnionFile(F2).ajoutMin(T)
+            if T.deg == T1.deg and T.deg == T2.deg:
+                return F1.reste().UFret(F2.reste(), T1.union(T2)).ajoutMin(T)
+            if T.deg == T1.deg and T.deg < T2.deg:
+                return F1.reste().UFret(F2, T1.union(T))
+            if T.deg == T2.deg and T.deg < T1.deg:
+                return F2.reste().UFret(F1, T2.union(T))
+            
+
+    def UnionFile(self, F2):
+        return self.UFret(F2, None)
     
     def Ajout(self, key):
-        pass
-    
-    def Union(self, bq2):
         pass
     
     def Construction(keys):
@@ -231,7 +268,7 @@ class BinomialQueue:
     
 
 
-def test():
+def testPrint():
     
     n7 = Node(7)
     n12 = Node(12)
@@ -244,9 +281,16 @@ def test():
     
     b = BinomialQueue()
     print(n7)
+
+def testDecapite():
+    n7 = Node(7)
+    n12 = Node(12)
+    n8 = Node(8)
+    n13 = Node(13)
     
-    
-    # TEST DECAPITE 
+    n7 = n7.union(n8)
+    n12 = n12.union(n13)
+    n7 = n12.union(n7)
     
     n3 = Node(3)
     n10 = Node(10)
@@ -269,11 +313,54 @@ def test():
     print(b)
     b = b.reste()
     print(b)
+
+def testUnion():
+    n = 4
+    k = [x for x in range(1, n+1)]
+    rd.shuffle(k)
+    tb0_a = Node(k[0])
+    tb0_b = Node(k[1])
+    tb0_c = Node(k[2])
+    tb0_d = Node(k[3])
+    
+    f1_a = BinomialQueue.initTournois(tb0_a)
+    f1_b = BinomialQueue.initTournois(tb0_b)
+    f1_c = BinomialQueue.initTournois(tb0_c)
+    f1_d = BinomialQueue.initTournois(tb0_d)
+    
+    f2_a = f1_a.UnionFile(f1_b)
+    f3_a = f1_c.UnionFile(f2_a)
+    f4_a = f3_a.UnionFile(f1_d)
+    print(f4_a)
+    
+    # tb2_a = na.union(nb)
+    # nf = n12.union(n13)
+    # ng = n12.union(n7)
+    
+    # n3 = Node(3)
+    # n10 = Node(10)
+    # n5 = Node(5)
+    # n9 = Node(9)
+    # n5 = n5.union(n9)
+    # n3 = n10.union(n3)
+    # n3 = n3.union(n5)
+    
+    
+    # b7 = BinomialQueue.initTournois(n7)
+    # b3 = BinomialQueue.initTournois(n3)
+    # print(b7)
+    # print(b3)
+    # bu = b3.UnionFile(b7)
+    # print(bu)
+    
+    
     
 
 
 def main():
-    test()
+    #testPrint()
+    #testDecapite()
+    testUnion()
     print("Done.")
 
 
