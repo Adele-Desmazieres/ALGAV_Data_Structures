@@ -128,6 +128,15 @@ class Node:
             mb = self if self.val < mb.val else mb
             return mb
     
+    def isTournoisBinomial(self):
+        # vérifier la décroissance des degrés des frères
+        for b in self.getBrothers():
+            if b.deg > self.deg: return False
+        # vérifier la croissances des clefs des fils
+        if self.child:
+            for f in self.child.getBrothers():
+                if f.val > self.val: return False
+        return True
 
 class BinomialQueue:
     """ La file binomiale est une liste doublement chaînée de tournois
@@ -198,6 +207,7 @@ class BinomialQueue:
             self.tail.next_bro = None
             if self.min_key_node == removed:
                 self.min_key_node = self.head.getMinBro()
+        
         else:
             self.head = None
             self.min_key_node = None
@@ -252,20 +262,49 @@ class BinomialQueue:
             
 
     def UnionFile(self, F2):
+        """ BinomialQueue * BinomialQueue -> BinomialQueue
+        Renvoie la file résultant de l'union des deux files."""
         return self.UFret(F2, None)
     
     def Ajout(self, key):
-        pass
+        """ BinomialQueue * int -> BinomialQueue
+        Renvoie la file résultant de l'ajout de la clef dans la file."""
+        return self.UnionFile(BinomialQueue.initTournois(Node(key)))
     
     def Construction(keys):
+        """ int list -> BinomialQueue
+        Renvoie la file résultant des ajouts successifs des clefs dans une file vide."""
         b = BinomialQueue()
         for key in keys:
-            b.Ajout(key)
+            b = b.Ajout(key)
         return b    
     
     def SupprMin(self):
-        pass
+        """ BinomialQueue -> BinomialQueue
+        Renvoie la file résultant de la suppression de la clef de valeur minimale."""
+        minTB = self.min_key_node
+        F1 = self.reste()
+        F2 = BinomialQueue.initTournoisDecapite(minTB)
+        return F1.UnionFile(F2)
     
+    def isBinomialQueue(self):
+        if self.head is None:
+            return (self.tail is None and self.min_key_node is None)
+        
+        if self.head.prev_bro is not None:
+            print("a")
+            return False
+        
+        if self.tail.next_bro is not None:
+            print("b")
+            return False
+        
+        m = self.head.getMinBro()
+        if m != self.min_key_node:
+            print("c")
+            return False
+            
+        return True
 
 
 def testPrint():
@@ -332,35 +371,22 @@ def testUnion():
     f3_a = f1_c.UnionFile(f2_a)
     f4_a = f3_a.UnionFile(f1_d)
     print(f4_a)
+    assert(f4_a.isBinomialQueue())
     
-    # tb2_a = na.union(nb)
-    # nf = n12.union(n13)
-    # ng = n12.union(n7)
+def testConstructionSupp():
+    n = 1000
+    k = [x for x in range(1, n+1)]
+    rd.shuffle(k)
     
-    # n3 = Node(3)
-    # n10 = Node(10)
-    # n5 = Node(5)
-    # n9 = Node(9)
-    # n5 = n5.union(n9)
-    # n3 = n10.union(n3)
-    # n3 = n3.union(n5)
-    
-    
-    # b7 = BinomialQueue.initTournois(n7)
-    # b3 = BinomialQueue.initTournois(n3)
-    # print(b7)
-    # print(b3)
-    # bu = b3.UnionFile(b7)
-    # print(bu)
-    
-    
-    
-
+    f = BinomialQueue.Construction(k)
+    #print(f)
+    assert(f.isBinomialQueue())
 
 def main():
     #testPrint()
     #testDecapite()
-    testUnion()
+    #testUnion()
+    testConstructionSupp()
     print("Done.")
 
 
