@@ -121,6 +121,8 @@ class Node:
         return BinomialQueue.initTournois(self)
     
     def getMinBro(self):
+        """ Node -> Node
+        Renvoie le tournois dont la racine a la plus petite clef parmi lui et ses frères."""
         if self.next_bro is None:
             return self
         else:
@@ -199,25 +201,32 @@ class BinomialQueue:
         Renvoie le tournois de degré minimum."""
         return self.tail
     
+    def removeTournois(self, T):
+        """ BinomialQueue * Node -> BinomialQueue
+        Renvoie la file binomiale privée du tournois T.
+        Met à jour les attributs de la file, de ses noeuds et du noeud supprimé."""
+        if T is None or self.isEmpty():
+            return self
+        
+        if T == self.head: self.head = T.next_bro
+        if T == self.tail: self.tail = T.prev_bro
+        
+        if T.prev_bro is not None: T.prev_bro.next_bro = T.next_bro
+        if T.next_bro is not None: T.next_bro.prev_bro = T.prev_bro
+        
+        T.prev_bro = None
+        T.next_bro = None
+        
+        if T == self.min_key_node: 
+            self.min_key_node = self.head.getMinBro() if self.head is not None else None
+        
+        return self
+    
     def reste(self):
         """ BinomialQueue -> BinomialQueue
         Renvoie la file privée de son tournoi de degré minimal
         ou elle-même si la file est vide."""
-        if self.isEmpty():
-            return self
-        
-        removed = self.tail
-        self.tail = removed.prev_bro
-        removed.prev_bro = None
-        if self.tail:
-            self.tail.next_bro = None
-            if self.min_key_node == removed:
-                self.min_key_node = self.head.getMinBro()
-        
-        else:
-            self.head = None
-            self.min_key_node = None
-        return self
+        return self.removeTournois(self.tail)
     
     def ajoutMin(self, tournois):
         """ BinomialQueue * Node -> BinomialQueue
@@ -236,6 +245,10 @@ class BinomialQueue:
         """ BinomialQueue * BinomialQueue * Node -> BinomialQueue
         Renvoie la file binomiale union de deux files et d'un tournoi."""
         F1 = self
+        #print("F1 :", F1)
+        #print("F2 :", F2)
+        #print("T :", T)
+        
         if T is None: # pas de tournoi en retenue
             if F1.isEmpty():
                 return F2
@@ -265,19 +278,20 @@ class BinomialQueue:
                 return F1.reste().UFret(F2, T1.union(T))
             if T.deg == T2.deg and T.deg < T1.deg:
                 return F2.reste().UFret(F1, T2.union(T))
-            else:
-                print("=== WTF ?! ===")
-                print(T.deg, T1.deg, T2.deg)
-                print(T)
-                print(F1)
-                print(F2)
-                print("=== WTF END ===")
+            # else:
+            #     print("=== WTF ?! ===")
+            #     print(T1.deg, T2.deg, T.deg)
+            #     print(F1)
+            #     print(F2)
+            #     print(T)
+            #     print("=== WTF END ===")
             
 
     def UnionFile(self, F2):
         """ BinomialQueue * BinomialQueue -> BinomialQueue
         Renvoie la file résultant de l'union des deux files."""
-        return self.UFret(F2, None)
+        r = self.UFret(F2, None)
+        return r
     
     def Ajout(self, key):
         """ BinomialQueue * int -> BinomialQueue
@@ -287,18 +301,18 @@ class BinomialQueue:
     def Construction(keys):
         """ int list -> BinomialQueue
         Renvoie la file résultant des ajouts successifs des clefs dans une file vide."""
-        print("Construction")
+        #print("Construction")
         b = BinomialQueue()
         for key in keys:
             b = b.Ajout(key)
         return b    
-    
+        
     def SupprMin(self):
         """ BinomialQueue -> BinomialQueue
         Renvoie la file résultant de la suppression de la clef de valeur minimale."""
         minTB = self.min_key_node
-        print("Suppression de la racine du tournois TB" + str(minTB.deg))
-        F1 = self.reste()
+        #print("Suppression de la clef " + str(minTB.val) + " du tournois TB" + str(minTB.deg))
+        F1 = self.removeTournois(minTB)
         F2 = BinomialQueue.initTournoisDecapite(minTB)
         return F1.UnionFile(F2)
     
@@ -307,22 +321,27 @@ class BinomialQueue:
             return (self.tail is None and self.min_key_node is None)
         
         if self.head.prev_bro is not None:
-            print("a")
+            print("Le précédent de head n'est pas null.")
             return False
         
         if self.tail.next_bro is not None:
-            print("b")
+            print("Le suivant de tail n'est pas null.")
             return False
         
         #brothers = self.head.getBrothers()
         m = self.head.getMinBro()
         if m != self.min_key_node:
-            print("c")
+            print("Le noeud minimum n'est pas le bon.")
             print(m.val)
             print(self.min_key_node.val)
             return False
             
         return self.head.isTournoisBinomial()
+    
+    def peek(self):
+        """ BinomialQueue -> Node
+        Renvoie le noeud de clef minimale, sans modifier la structure."""
+        return self.min_key_node
 
 
 def testPrint():
@@ -392,35 +411,36 @@ def testUnion():
     assert(f4_a.isBinomialQueue())
     
 def testConstructionSupp():
-    n1 = 5
-    n2 = 7
+    n1 = 10
+    n2 = 5
+    k = [x for x in range(1, n1+n2+1)]
+    rd.shuffle(k)
     
-    k1 = [x for x in range(1, n1+1)]
-    rd.shuffle(k1)
-    print(k1)
+    k1 = k[:n1+1]
+    k2 = k[n1+1:]
     
-    k2 = [x for x in range(n1+1, n1+n2+1)]
-    rd.shuffle(k2)
-    print(k2)
-    
+    print("Ordre de départ :     ", k)
     
     f1 = BinomialQueue.Construction(k1)
-    print(f1)
     assert(f1.isBinomialQueue())
     
     f2 = BinomialQueue.Construction(k2)
-    print(f2)
     assert(f2.isBinomialQueue())
     
     f3 = f1.UnionFile(f2)
-    print(f3)
     assert(f3.isBinomialQueue())
+    
+    tasks = []
     
     # TESTS DE SUPPR
     while not f3.isEmpty():
+        tasks.append(f3.peek().val)
         f3 = f3.SupprMin()
-        print(f3)
+        #print(f3)
         assert(f3.isBinomialQueue())
+    
+    print("Ordre de suppression :", tasks)
+    assert(all(tasks[i] < tasks[i+1] for i in range(len(tasks) - 1)))
 
 def main():
     #testPrint()
