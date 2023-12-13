@@ -131,11 +131,15 @@ class Node:
     def isTournoisBinomial(self):
         # vérifier la décroissance des degrés des frères
         for b in self.getBrothers():
-            if b.deg > self.deg: return False
+            if b.deg > self.deg: 
+                print("Décroissance des degrés non respectée.")
+                return False
         # vérifier la croissances des clefs des fils
         if self.child:
             for f in self.child.getBrothers():
-                if f.val > self.val: return False
+                if f.val < self.val: 
+                    print("Croissance des valeurs non respectée.")
+                    return False
         return True
 
 class BinomialQueue:
@@ -176,10 +180,12 @@ class BinomialQueue:
     def __str__(self):
         if self.head:
             s = "File binomiale\n"
-            s += "\t> Head : " + str(self.head.val) + "\n"
-            s += "\t> Tail : " + str(self.tail.val) + "\n"
-            s += "\t> MinKey : " + str(self.min_key_node.val) + "\n"
-            return s + self.head.__str__()
+            s += "< " + str(["TB"+str(b.deg) for b in self.head.getBrothers()]) + " >\n"
+            s += "\t> Head : " + str(self.head.val) + " deg " + str(self.head.deg) + "\n"
+            s += "\t> Tail : " + str(self.tail.val) + " deg " + str(self.tail.deg) + "\n"
+            s += "\t> MinKey : " + str(self.min_key_node.val) + " deg " + str(self.min_key_node.deg) + "\n"
+            #s += self.head.__str__()
+            return s
         else:
             return "File binomiale vide\n"
     
@@ -259,6 +265,13 @@ class BinomialQueue:
                 return F1.reste().UFret(F2, T1.union(T))
             if T.deg == T2.deg and T.deg < T1.deg:
                 return F2.reste().UFret(F1, T2.union(T))
+            else:
+                print("=== WTF ?! ===")
+                print(T.deg, T1.deg, T2.deg)
+                print(T)
+                print(F1)
+                print(F2)
+                print("=== WTF END ===")
             
 
     def UnionFile(self, F2):
@@ -274,6 +287,7 @@ class BinomialQueue:
     def Construction(keys):
         """ int list -> BinomialQueue
         Renvoie la file résultant des ajouts successifs des clefs dans une file vide."""
+        print("Construction")
         b = BinomialQueue()
         for key in keys:
             b = b.Ajout(key)
@@ -283,6 +297,7 @@ class BinomialQueue:
         """ BinomialQueue -> BinomialQueue
         Renvoie la file résultant de la suppression de la clef de valeur minimale."""
         minTB = self.min_key_node
+        print("Suppression de la racine du tournois TB" + str(minTB.deg))
         F1 = self.reste()
         F2 = BinomialQueue.initTournoisDecapite(minTB)
         return F1.UnionFile(F2)
@@ -299,12 +314,15 @@ class BinomialQueue:
             print("b")
             return False
         
+        #brothers = self.head.getBrothers()
         m = self.head.getMinBro()
         if m != self.min_key_node:
             print("c")
+            print(m.val)
+            print(self.min_key_node.val)
             return False
             
-        return True
+        return self.head.isTournoisBinomial()
 
 
 def testPrint():
@@ -374,13 +392,37 @@ def testUnion():
     assert(f4_a.isBinomialQueue())
     
 def testConstructionSupp():
-    n = 1000
-    k = [x for x in range(1, n+1)]
-    rd.shuffle(k)
+    n1 = 5
+    n2 = 7
     
-    f = BinomialQueue.Construction(k)
-    #print(f)
-    assert(f.isBinomialQueue())
+    k1 = [x for x in range(1, n1+1)]
+    rd.shuffle(k1)
+    print(k1)
+    
+    k2 = [x for x in range(n1+1, n1+n2+1)]
+    rd.shuffle(k2)
+    print(k2)
+    
+    
+    f1 = BinomialQueue.Construction(k1)
+    print(f1)
+    assert(f1.isBinomialQueue())
+    
+    f2 = BinomialQueue.Construction(k2)
+    print(f2)
+    assert(f2.isBinomialQueue())
+    
+    f3 = f1.UnionFile(f2)
+    print(f3)
+    assert(f3.isBinomialQueue())
+    
+    
+    
+    # TESTS DE SUPPR
+    #while not f.isEmpty():
+    #    f = f.SupprMin()
+    #    print(f)
+    #    assert(f.isBinomialQueue())
 
 def main():
     #testPrint()
