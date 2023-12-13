@@ -416,13 +416,11 @@ def testConstructionSupp():
     print(f3)
     assert(f3.isBinomialQueue())
     
-    
-    
     # TESTS DE SUPPR
-    #while not f.isEmpty():
-    #    f = f.SupprMin()
-    #    print(f)
-    #    assert(f.isBinomialQueue())
+    while not f3.isEmpty():
+        f3 = f3.SupprMin()
+        print(f3)
+        assert(f3.isBinomialQueue())
 
 def main():
     #testPrint()
