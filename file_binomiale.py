@@ -62,53 +62,7 @@ class Node:
         if self.next_bro:
             l += self.next_bro.getBrothers()
         return l
-    
-#    def deg(self):
-#        """ Node -> int
-#        Renvoie le degré de la racine du tournois."""
-#        #if self.child is None: return 0
-#        #else: return len(self.child.getBrothers())
-#        return self.deg
-    
-    # TODO : A SUPPRIMER
-    def sortByDeg(self):
-        """ Node -> Node
-        Tri les noeuds de cette fraterie par degré croissant.
-        Utilise l'algorithme de tri par insertion."""
-        root = self
-        curr = self
-        nextnode = self
         
-        while curr is not None:
-            nextnode = curr.next_bro
-            newprev = curr
-            tmp = newprev.prev_bro
-            while tmp and tmp.deg() > curr.deg():
-                newprev = tmp
-                tmp = tmp.prev_bro
-                
-            if newprev == curr or newprev.deg() > curr.deg():
-                newprev = tmp
-
-            if newprev != curr and newprev != curr.prev_bro:
-                                
-                if curr.prev_bro is not None: curr.prev_bro.next_bro = curr.next_bro
-                if curr.next_bro is not None: curr.next_bro.prev_bro = curr.prev_bro
-                
-                if newprev is not None:
-                    newnext = newprev.next_bro
-                    curr.next_bro = newnext
-                    newnext.prev_bro = curr
-                    newprev.next_bro = curr
-                
-                else:
-                    curr.next_bro = root
-                    root.prev_bro = curr
-                    root = curr
-                curr.prev_bro = newprev
-            curr = nextnode
-        return root
-    
     def decapite(self):
         """ Node -> BinomialQueue
         Renvoie la file binomiale constituée des tournois 
@@ -131,12 +85,19 @@ class Node:
             return mb
     
     def isTournoisBinomial(self):
-        # vérifier la décroissance des degrés des frères
+        """ Node -> Boolean
+        Vérifie que ce noeud est à la racine d'un tournois bien formé.
+        C'est-à-dire ses frères sont de degré décroissants,
+        ses fils sont de clef supérieure à la sienne,
+        et tous ses descendants et frères sont des tournois valides."""
+        
+        # vérifie la décroissance des degrés des frères
         for b in self.getBrothers():
             if b.deg > self.deg: 
                 print("Décroissance des degrés non respectée.")
                 return False
-        # vérifier la croissances des clefs des fils
+                
+        # vérifie la croissances des clefs des fils
         if self.child:
             for f in self.child.getBrothers():
                 if f.val < self.val: 
@@ -186,7 +147,7 @@ class BinomialQueue:
             s += "\t> Head : " + str(self.head.val) + " deg " + str(self.head.deg) + "\n"
             s += "\t> Tail : " + str(self.tail.val) + " deg " + str(self.tail.deg) + "\n"
             s += "\t> MinKey : " + str(self.min_key_node.val) + " deg " + str(self.min_key_node.deg) + "\n"
-            #s += self.head.__str__()
+            s += self.head.__str__()
             return s
         else:
             return "File binomiale vide\n"
@@ -245,10 +206,6 @@ class BinomialQueue:
         """ BinomialQueue * BinomialQueue * Node -> BinomialQueue
         Renvoie la file binomiale union de deux files et d'un tournoi."""
         F1 = self
-        #print("F1 :", F1)
-        #print("F2 :", F2)
-        #print("T :", T)
-        
         if T is None: # pas de tournoi en retenue
             if F1.isEmpty():
                 return F2
@@ -276,16 +233,8 @@ class BinomialQueue:
                 return F1.reste().UFret(F2.reste(), T1.union(T2)).ajoutMin(T)
             if T.deg == T1.deg and T.deg < T2.deg:
                 return F1.reste().UFret(F2, T1.union(T))
-            if T.deg == T2.deg and T.deg < T1.deg:
-                return F2.reste().UFret(F1, T2.union(T))
-            # else:
-            #     print("=== WTF ?! ===")
-            #     print(T1.deg, T2.deg, T.deg)
-            #     print(F1)
-            #     print(F2)
-            #     print(T)
-            #     print("=== WTF END ===")
-            
+            else: # T.deg == T2.deg and T.deg < T1.deg:
+                return F2.reste().UFret(F1, T2.union(T))            
 
     def UnionFile(self, F2):
         """ BinomialQueue * BinomialQueue -> BinomialQueue
@@ -301,7 +250,6 @@ class BinomialQueue:
     def Construction(keys):
         """ int list -> BinomialQueue
         Renvoie la file résultant des ajouts successifs des clefs dans une file vide."""
-        #print("Construction")
         b = BinomialQueue()
         for key in keys:
             b = b.Ajout(key)
@@ -311,12 +259,17 @@ class BinomialQueue:
         """ BinomialQueue -> BinomialQueue
         Renvoie la file résultant de la suppression de la clef de valeur minimale."""
         minTB = self.min_key_node
-        #print("Suppression de la clef " + str(minTB.val) + " du tournois TB" + str(minTB.deg))
         F1 = self.removeTournois(minTB)
         F2 = BinomialQueue.initTournoisDecapite(minTB)
         return F1.UnionFile(F2)
     
     def isBinomialQueue(self):
+        """ BinomialQueue -> Boolean
+        Vérifie que cette file binomiale est bien formée
+        c'est-à-dire sa tête n'a pas de tournois précédent,
+        sa queue n'a pas de tournois suivant, 
+        son tournois de clef minimum est le bon, 
+        et tous ses tournois sont bien formés."""
         if self.head is None:
             return (self.tail is None and self.min_key_node is None)
         
@@ -328,7 +281,6 @@ class BinomialQueue:
             print("Le suivant de tail n'est pas null.")
             return False
         
-        #brothers = self.head.getBrothers()
         m = self.head.getMinBro()
         if m != self.min_key_node:
             print("Le noeud minimum n'est pas le bon.")
