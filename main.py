@@ -8,6 +8,21 @@ INDICES_JEUX_DONNEES = [1, 2, 3, 4, 5]
 NOMBRE_CLEFS = [1000, 5000, 10000, 20000, 50000, 80000, 120000, 200000]
 DIRECTORY = "cles_alea/"
 
+def mesure_temps_union(keys1, keys2) :
+    ttree1 = tas_min_tree.Construction(keys1)
+    ttree2 = tas_min_tree.Construction(keys2)
+    tarr1 = tas_min_array.AjoutsIteratifsStatic(keys1)
+    tarr2 = tas_min_array.AjoutsIteratifsStatic(keys2)
+    
+    start = time.time()
+    tas_min_tree.Union(ttree1, ttree2)
+    tree_time = time.time() - start
+
+    start = time.time()
+    tas_min_array.Union(tarr1, tarr2)
+    arr_time = time.time() - start
+    
+    return tree_time, arr_time
 
 def mesure_temps(keys, cons_f) :
     start = time.time()
@@ -16,9 +31,10 @@ def mesure_temps(keys, cons_f) :
     return ret
 
 
-def graphe_temps(temps_tree_cons, temps_tree_ajout, temps_array_cons, temps_array_ajout) : 
+def graphe_temps(temps_tree_cons, temps_tree_ajout, temps_array_cons, temps_array_ajout, temps_tree_union, temps_array_union) : 
     print("Making plots...")
     
+    # FIRST GRAPH
     fig, axs = plt.subplots(1, 2)
     fig.suptitle("Temps de création d'un tas min en fonction de sa taille")
     
@@ -41,7 +57,22 @@ def graphe_temps(temps_tree_cons, temps_tree_ajout, temps_array_cons, temps_arra
     axs[1].grid()
     
     plt.show()
+    #plt.close()
+    
+    # SECOND GRAPH
+    plt.plot(xval, temps_tree_union, label="Union par arbre", marker='X')
+    plt.plot(xval, temps_array_union, label="Union par tableau", marker='X')
+    plt.legend()
+    plt.xlabel("taille du tas résultant (en milliers de noeuds)")
+    plt.ylabel("temps (en secondes)")
+    plt.title("Union de deux tas min de même tailles")
+    plt.grid()
+
+    plt.show()
     plt.close()
+    
+    
+    
 
 
 def process_keys(filename) :
@@ -61,6 +92,8 @@ def process_all_keys() :
     temps_tree_ajout = [0] * len(NOMBRE_CLEFS)
     temps_array_cons = [0] * len(NOMBRE_CLEFS)
     temps_array_ajout = [0] * len(NOMBRE_CLEFS)
+    temps_tree_union = [0] * len(NOMBRE_CLEFS)
+    temps_array_union = [0] * len(NOMBRE_CLEFS)
 
     print("Processing files...")
     
@@ -77,23 +110,29 @@ def process_all_keys() :
             t2 = mesure_temps(keys, tas_min_tree.AjoutsIteratifsStatic)
             t3 = mesure_temps(keys, tas_min_array.Construction)
             t4 = mesure_temps(keys, tas_min_array.AjoutsIteratifsStatic)
+            mid = keys_number//2
+            t5, t6 = mesure_temps_union(keys[:mid+1], keys[mid+1:])
             
             temps_tree_cons[i] += t1
             temps_tree_ajout[i] += t2
             temps_array_cons[i] += t3
             temps_array_ajout[i] += t4
+            temps_tree_union[i] += t5
+            temps_array_union[i] += t6
 
     temps_tree_cons = [x/len(temps_tree_cons) for x in temps_tree_cons]
     temps_tree_ajout = [x/len(temps_tree_ajout) for x in temps_tree_ajout]
     temps_array_cons = [x/len(temps_array_cons) for x in temps_array_cons]
     temps_array_ajout = [x/len(temps_array_ajout) for x in temps_array_ajout]
+    temps_tree_union = [x/len(temps_tree_union) for x in temps_tree_union]
+    temps_array_union = [x/len(temps_array_union) for x in temps_array_union]
     
-    return (temps_tree_cons, temps_tree_ajout, temps_array_cons, temps_array_ajout)
+    return (temps_tree_cons, temps_tree_ajout, temps_array_cons, temps_array_ajout, temps_tree_union, temps_array_union)
 
 
 def main() :
-    t1, t2, t3, t4 = process_all_keys()
-    graphe_temps(t1, t2, t3, t4)
+    t1, t2, t3, t4, t5, t6 = process_all_keys()
+    graphe_temps(t1, t2, t3, t4, t5, t6)
     print("Done.")
 
 
