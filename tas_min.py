@@ -1,5 +1,6 @@
 import random as rd # temporaire, pour test
 import int_representation as ir
+import time
 
 class tas_min_interface :
 
@@ -186,19 +187,14 @@ class node :
             g.gauche = g.gauche.equilibreDescente()
             return g
     
-    def getKeysLargeur(self) :
-        file = []
-        keys = []
-        file.append(self)
-        while len(file) > 0 :
-            curr_node = file[0]
-            file = file[1:]
-            keys.append(curr_node.val)
-            if curr_node.gauche :
-                file.append(curr_node.gauche)
-            if curr_node.droite :
-                file.append(curr_node.droite)
-        return keys
+    def getKeys(self) :
+        res = []
+        if self.droite:
+            res = self.droite.getKeys()
+        if self.gauche:
+            res += self.gauche.getKeys()
+        res.append(self.val)
+        return res
     
     def isWellFormed(self) :
         file = []
@@ -340,9 +336,19 @@ class tas_min_tree(tas_min_interface) :
         elif not t2.root :
             return t1
         else :
-            k1 = t1.root.getKeysLargeur()
-            k2 = t2.root.getKeysLargeur()
-            return tas_min_tree.Construction(k1 + k2)
+            start = time.time()
+            k1 = t1.root.getKeys()
+            k2 = t2.root.getKeys()
+            t1 = time.time()
+            keys = k1 + k2
+            t2 = time.time()
+            res = tas_min_tree.Construction(keys)
+            t3 = time.time()
+            d1 = t1 - start
+            d2 = t2 - t1
+            d3 = t3 - t2
+            #print("duration 1 :", d1, "\nduration 2 :", d2, "\nduration 3 :", d3)
+            return res
     
     def isTasMin(self) :
         if not self.root :
