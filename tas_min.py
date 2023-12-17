@@ -1,3 +1,4 @@
+import random as rd # temporaire, pour test
 import int_representation as ir
 
 class tas_min_interface :
