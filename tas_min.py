@@ -1,6 +1,4 @@
-import random as rd # temporaire, pour test
 import int_representation as ir
-import time
 
 class tas_min_interface :
 
@@ -336,18 +334,10 @@ class tas_min_tree(tas_min_interface) :
         elif not t2.root :
             return t1
         else :
-            start = time.time()
             k1 = t1.root.getKeys()
             k2 = t2.root.getKeys()
-            t1 = time.time()
             keys = k1 + k2
-            t2 = time.time()
             res = tas_min_tree.Construction(keys)
-            t3 = time.time()
-            d1 = t1 - start
-            d2 = t2 - t1
-            d3 = t3 - t2
-            #print("duration 1 :", d1, "\nduration 2 :", d2, "\nduration 3 :", d3)
             return res
     
     def isTasMin(self) :
