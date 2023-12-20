@@ -22,39 +22,38 @@ def md5(message):
 	c0 = 0x98badcfe
 	d0 = 0x10325476
 
-	message += b'\x01'
-	while len(message) % 64 != 56:
+	x = 8 * len(message)
+	message += b'\x80'
+	while (len(message) * 8) % 512 != 448:
 		message += b'\x00'
 
-	message += (8 * len(message)).to_bytes(8, byteorder='little')
+	message += x.to_bytes(8, 'little')
 
 	for i in range(0, len(message), 64):
-		chunk = message[i:i+64]
+		chunk = message[i : i + 64]
 		M = [int.from_bytes(chunk[j:j+4], byteorder='little') for j in range(0, 64, 4)]
 
 		A, B, C, D = a0, b0, c0, d0
 
-		for i in range(64):
-			if 0 <= i <= 15:
+		for j in range(64):
+			if 0 <= j <= 15:
 				F = (B & C) | ((~B) & D)
-				g = i
-			elif 16 <= i <= 31:
+				g = j
+			elif 16 <= j <= 31:
 				F = (D & B) | ((~D) & C)
-				g = (5 * i + 1) % 16
-			elif 32 <= i <= 47:
+				g = (5 * j + 1) % 16
+			elif 32 <= j <= 47:
 				F = B ^ C ^ D
-				g = (3 * i + 5) % 16
-			elif 48 <= i <= 63:
+				g = (3 * j + 5) % 16
+			elif 48 <= j <= 63:
 				F = C ^ (B | (~D))
-				g = (7 * i) % 16
+				g = (7 * j) % 16
 
-			F = (F + A + k[i] + M[g]) & 0xFFFFFFFF
+			F = (F + A + k[j] + M[g]) & 0xFFFFFFFF
 			A = D
 			D = C
 			C = B
-			B = B + leftrotate(F, s[i]) & 0xFFFFFFFF
-
-			A, D, C, B = D, C, B, (B + leftrotate(F, s[i]))
+			B = (B + leftrotate(F, s[j])) & 0xFFFFFFFF
 
 		a0 = (a0 + A) & 0xFFFFFFFF
 		b0 = (b0 + B) & 0xFFFFFFFF
@@ -68,17 +67,9 @@ def md5(message):
 
 	return digest
 
-message = b"Hello World!"
+message = b"OMG THE FUNCTION IS DONE FINALLY"
 result = md5(message)
-print(result)
-# encoding GeeksforGeeks using md5 hash
-# function 
-result = hashlib.md5(b"Hello World!")
- 
-# printing the equivalent byte value.
-print(result.digest())
+print(result.hex())
 
-# custom_md5_result = b'\x9e\xc7\xba\xcd\xe6Lg\x14\xa9H3\xffo\x8a\x89\xb8'
-# big_endian_result = custom_md5_result[::-1]
-
-# print(big_endian_result)
+result = hashlib.md5(b"OMG THE FUNCTION IS DONE FINALLY") 
+print(result.digest().hex())
