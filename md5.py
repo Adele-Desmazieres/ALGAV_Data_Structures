@@ -67,9 +67,13 @@ def md5(message):
 
 	return digest
 
-message = b"OMG THE FUNCTION IS DONE FINALLY"
-result = md5(message)
-print(result.hex())
+def test()
+	message = b"OMG THE FUNCTION IS DONE FINALLY"
+	result = md5(message)
+	print(result.hex())
+	
+	result = hashlib.md5(b"OMG THE FUNCTION IS DONE FINALLY") 
+	print(result.digest().hex())
 
-result = hashlib.md5(b"OMG THE FUNCTION IS DONE FINALLY") 
-print(result.digest().hex())
+if __name__=="__main__" :
+	test()

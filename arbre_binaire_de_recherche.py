@@ -143,5 +143,6 @@ def test():
 	# a.Ajout(22)
 	# a.Ajout(22)
 
-test()
+if __name__=="__main__" :
+	test()
 
