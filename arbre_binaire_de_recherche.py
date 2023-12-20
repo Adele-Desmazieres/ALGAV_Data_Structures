@@ -4,7 +4,7 @@ class node:
 		self.gauche = None
 		self.droite = None
 		self.hauteur = 1
-	
+
 	def __str__(self) :
 		elt_str = str(self.val)
 		g_str = self.gauche.__str__() if self.gauche else "#"
@@ -80,6 +80,15 @@ class node:
 			return 0
 		return node.get_hauteur(self.gauche) - node.get_hauteur(self.droite)
 
+	def has_node(self,e):
+		if e == self.val:
+			return True
+		elif e < self.val and self.gauche:
+			return self.gauche.has_node(e)
+		elif e > self.val and self.droite:
+			return self.droite.has_node(e)
+		return False
+
 class abr:
 	def __init__(self):
 		self.root = None
@@ -95,7 +104,7 @@ class abr:
 		a.root = None
 		a.size = 0
 		return a
-	
+
 	# def Arbre_Binaire(e, G, D):
 	# 	a = abr()
 	# 	a.root.val = e
@@ -125,6 +134,8 @@ class abr:
 			self.size += 1
 		# print(self.root)
 
+	def has(self,e):
+		return self.root.has_node(e)
 
 def test():
 	# a = abr()
@@ -145,4 +156,3 @@ def test():
 
 if __name__=="__main__" :
 	test()
-
