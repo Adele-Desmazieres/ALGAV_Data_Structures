@@ -1,4 +1,4 @@
-import random as rd # temporaire, pour test
+import random as rd
 import int_representation as ir
 
 class tas_min_interface :
@@ -350,7 +350,7 @@ class tas_min_tree(tas_min_interface) :
 class tas_min_array(tas_min_interface) :
     
     def __init__(self) :
-        self.t = [] # TODO check python list are okay, or use array module
+        self.t = []
         self.size = 0
     
     def __str__(self) :
