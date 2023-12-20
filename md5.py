@@ -67,7 +67,7 @@ def md5(message):
 
 	return digest
 
-def test()
+def test():
 	message = b"OMG THE FUNCTION IS DONE FINALLY"
 	result = md5(message)
 	print(result.hex())
