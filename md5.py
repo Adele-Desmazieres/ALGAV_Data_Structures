@@ -7,6 +7,8 @@ def leftrotate(x, c):
     return ((x << c) | (x >> (32 - c))) & 0xFFFFFFFF
 
 def md5(message):
+	if type(message) is str:
+		message = message.encode('utf-8')
 	s = []
 	s[0:15] = [7,12,17,22] * 4
 	s[16:31] = [5,9,14,20] * 4
@@ -68,7 +70,7 @@ def md5(message):
 	return digest
 
 def test():
-	message = b"OMG THE FUNCTION IS DONE FINALLY"
+	message = "OMG THE FUNCTION IS DONE FINALLY"
 	result = md5(message)
 	print(result.hex())
 	
