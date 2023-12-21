@@ -135,6 +135,7 @@ class abr:
 		# print(self.root)
 
 	def has(self,e):
+		if not self.root: return False
 		return self.root.has_node(e)
 
 def test():
